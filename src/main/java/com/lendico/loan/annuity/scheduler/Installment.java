@@ -2,7 +2,7 @@ package com.lendico.loan.annuity.scheduler;
 
 import java.time.LocalDateTime;
 
-public class Installment  {
+public class Installment {
 
 	private double borrowerPaymentAmount;
 	private LocalDateTime date;
@@ -94,6 +94,5 @@ public class Installment  {
 				+ ", initialOutstandingPrincipal=" + initialOutstandingPrincipal + ", interest=" + interest
 				+ ", principal=" + principal + ", remainingOutstandingPrincipal=" + remainingOutstandingPrincipal + "]";
 	}
-
 
 }

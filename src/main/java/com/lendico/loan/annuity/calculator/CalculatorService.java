@@ -7,20 +7,17 @@ import java.text.DecimalFormat;
 import org.springframework.stereotype.Service;
 import lombok.extern.slf4j.Slf4j;
 
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Service
 @Slf4j
 public class CalculatorService {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(CalculatorService.class);
 
 	public double getAmountForPeriod(double rate, double amount, int duration) {
 
-		logger.info("Rate- {}, Amount- {}, Duration- {}", rate, amount, duration);
-		
 		final double annuityPayment = (rate * amount) / (1 - (pow(1 + rate, -duration)));
 		logger.info("CalculatorService: Periodic payment for annuity {}", annuityPayment);
 		return Double.parseDouble(new DecimalFormat("##.##").format(annuityPayment));

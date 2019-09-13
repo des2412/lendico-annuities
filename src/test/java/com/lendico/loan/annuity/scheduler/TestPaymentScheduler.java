@@ -21,7 +21,7 @@ public class TestPaymentScheduler {
 	public void testCreateSchedule() {
 
 		String text = "2018-01-01T00:00:00Z";
-		List<Installment> res = schd.createScheduler(text, 24, 0.05, 5000);
+		List<Installment> res = schd.createScheduler(text, 24, 5.00, 5000);
 		assertEquals(24, res.size());
 	}
 

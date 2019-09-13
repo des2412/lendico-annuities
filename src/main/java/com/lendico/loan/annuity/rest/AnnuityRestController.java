@@ -35,7 +35,7 @@ public class AnnuityRestController {
 
 			@Override
 			public void accept(Installment i) {
-				// System.out.print(i.toString() + System.lineSeparator());
+				logger.info(i.toString());
 
 			}
 
