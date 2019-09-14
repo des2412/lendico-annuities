@@ -11,10 +11,6 @@ public class Installment {
 	private double principal;
 	private double remainingOutstandingPrincipal;
 
-	public Installment() {
-
-	}
-
 	public double getBorrowerPaymentAmount() {
 		return borrowerPaymentAmount;
 	}

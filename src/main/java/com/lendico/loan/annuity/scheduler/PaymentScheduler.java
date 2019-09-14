@@ -36,7 +36,7 @@ public class PaymentScheduler {
 	@Autowired
 	private CalculatorService calcService;
 
-	public List<Installment> createScheduler(final String start, final int duration, final double rate,
+	public List<Installment> createSchedule(final String start, final int duration, final double rate,
 			final double amount) {
 
 		logger.info("Start Date {}, Duration {}, Nominal Rate {}, Loan Amount {}", start, duration, rate, amount);

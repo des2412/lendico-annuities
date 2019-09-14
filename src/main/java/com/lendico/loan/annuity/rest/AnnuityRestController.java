@@ -31,7 +31,7 @@ public class AnnuityRestController {
 
 		logger.info("Start Date {}, Duration {}, Nominal Rate {}, Loan Amount {}", annuityRequest.getStartDate(),
 				annuityRequest.getDuration(), annuityRequest.getNominalRate(), annuityRequest.getLoanAmount());
-		List<Installment> insts = annuityScheduler.createScheduler(annuityRequest.getStartDate(),
+		List<Installment> insts = annuityScheduler.createSchedule(annuityRequest.getStartDate(),
 				annuityRequest.getDuration(), annuityRequest.getNominalRate(), annuityRequest.getLoanAmount());
 		insts.stream().forEach(new Consumer<Installment>() {
 

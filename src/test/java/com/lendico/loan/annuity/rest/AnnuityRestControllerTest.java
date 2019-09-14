@@ -55,7 +55,7 @@ public class AnnuityRestControllerTest {
 				.andExpect(jsonPath("$.errors").isArray()).andExpect(jsonPath("$.errors", hasSize(1)))
 				.andExpect(jsonPath("$.errors", hasItem("must be greater than or equal to 1000.00")));
 
-		verify(annuityScheduler, times(0)).createScheduler(anyString(), anyInt(), anyDouble(), anyDouble());
+		verify(annuityScheduler, times(0)).createSchedule(anyString(), anyInt(), anyDouble(), anyDouble());
 
 	}
 
