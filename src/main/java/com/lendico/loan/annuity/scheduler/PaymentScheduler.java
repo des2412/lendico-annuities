@@ -15,6 +15,7 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.lendico.loan.annuity.calculator.CalculatorService;
@@ -22,6 +23,13 @@ import com.lendico.loan.annuity.calculator.CalculatorService;
 @Service
 public class PaymentScheduler {
 	private static final Logger logger = LoggerFactory.getLogger(PaymentScheduler.class);
+
+	@Value(value = "${year.months}")
+	private int yrMonths;
+
+	@Value(value = "${time.zone}")
+	private String timeZone;
+
 	@Autowired
 	private CalculatorService calcService;
 
@@ -31,12 +39,12 @@ public class PaymentScheduler {
 		logger.info("Start Date {}, Duration {}, Nominal Rate {}, Loan Amount {}", start, duration, rate, amount);
 
 		final double ratePercent = rate / 100;
-		final double annuity = calcService.getAmountForPeriod(ratePercent / 12, amount, duration);
+		final double annuity = calcService.getAmountForPeriod(ratePercent / yrMonths, amount, duration);
 		final List<Installment> installments = new ArrayList<Installment>();
 
 		final DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;
 		final LocalDateTime dateTime = LocalDateTime.parse(start, formatter);
-		final ZoneId zoneId = ZoneId.of("Europe/Berlin");
+		final ZoneId zoneId = ZoneId.of(timeZone);
 
 		// schedule payments for duration.
 
@@ -78,19 +86,21 @@ public class PaymentScheduler {
 					principal = Double.parseDouble(new DecimalFormat("##.##").format(annuity - interest));
 					installment.setPrincipal(principal);
 
-					installment.setBorrowerPaymentAmount(
-							Double.parseDouble(new DecimalFormat("##.##").format(principal + interest)));
-
 					double remainingPrinicipal = Double
 							.parseDouble(new DecimalFormat("##.##").format(initPrincipal - principal));
-
-					installment.setRemainingOutstandingPrincipal(remainingPrinicipal);
 
 					if (principal > initPrincipal)
 						installment.setPrincipal(initPrincipal);
 
-					if (remainingPrinicipal < 0.0)
+					if (remainingPrinicipal < 0.0) {
 						installment.setRemainingOutstandingPrincipal(0.0);
+						installment.setBorrowerPaymentAmount(Double.parseDouble(
+								new DecimalFormat("##.##").format(principal + interest + remainingPrinicipal)));
+					} else {
+						installment.setBorrowerPaymentAmount(
+								Double.parseDouble(new DecimalFormat("##.##").format(principal + interest)));
+						installment.setRemainingOutstandingPrincipal(remainingPrinicipal);
+					}
 
 				}
 				installments.add(installment);
