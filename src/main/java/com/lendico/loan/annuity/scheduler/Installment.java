@@ -1,6 +1,5 @@
 package com.lendico.loan.annuity.scheduler;
 
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 
 public class Installment {

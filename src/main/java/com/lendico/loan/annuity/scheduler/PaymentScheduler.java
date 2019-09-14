@@ -27,6 +27,9 @@ public class PaymentScheduler {
 	@Value(value = "${year.months}")
 	private int yrMonths;
 
+	@Value(value = "${month.days}")
+	private int monthDays;
+
 	@Value(value = "${time.zone}")
 	private String timeZone;
 
@@ -59,7 +62,7 @@ public class PaymentScheduler {
 				if (installments.isEmpty()) {
 					ZonedDateTime zBerlin = dateTime.atZone(zoneId);
 					installment.setDate(zBerlin);
-					final double interest = calcService.interestForPeriod(ratePercent, 30, amount);
+					final double interest = calcService.interestForPeriod(ratePercent, monthDays, amount);
 					principal = annuity - interest;
 					installment.setBorrowerPaymentAmount(
 							Double.parseDouble(new DecimalFormat("##.##").format(principal + interest)));
@@ -80,7 +83,7 @@ public class PaymentScheduler {
 
 					installment.setInitialOutstandingPrincipal(initPrincipal);
 
-					final double interest = calcService.interestForPeriod(ratePercent, 30, initPrincipal);
+					final double interest = calcService.interestForPeriod(ratePercent, monthDays, initPrincipal);
 					installment.setInterest(interest);
 
 					principal = Double.parseDouble(new DecimalFormat("##.##").format(annuity - interest));
