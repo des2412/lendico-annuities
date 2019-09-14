@@ -4,6 +4,8 @@ import static java.util.stream.IntStream.rangeClosed;
 
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -34,8 +36,9 @@ public class PaymentScheduler {
 
 		final DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;
 		final LocalDateTime dateTime = LocalDateTime.parse(start, formatter);
+		final ZoneId zoneId = ZoneId.of("Europe/Berlin");
 
-		// schedule remaining payments for duration.
+		// schedule payments for duration.
 
 		rangeClosed(0, duration - 1).boxed().forEach(new Consumer<Integer>() {
 
@@ -46,12 +49,12 @@ public class PaymentScheduler {
 
 				Double principal = null;
 				if (installments.isEmpty()) {
-					installment.setDate(dateTime);
+					ZonedDateTime zBerlin = dateTime.atZone(zoneId);
+					installment.setDate(zBerlin);
 					final double interest = calcService.interestForPeriod(ratePercent, 30, amount);
 					principal = annuity - interest;
 					installment.setBorrowerPaymentAmount(
 							Double.parseDouble(new DecimalFormat("##.##").format(principal + interest)));
-					installment.setDate(dateTime);
 					installment.setInitialOutstandingPrincipal(
 							Double.parseDouble(new DecimalFormat("##.##").format(amount)));
 					installment.setInterest(interest);
@@ -59,8 +62,10 @@ public class PaymentScheduler {
 					installment.setRemainingOutstandingPrincipal(amount - principal);
 
 				} else {
-					LocalDateTime nextMonthSameDateTime = dateTime.plus(t, ChronoUnit.MONTHS);
-					installment.setDate(nextMonthSameDateTime);
+					LocalDateTime nextMonthSameDateTime = dateTime.plus(t, ChronoUnit.MONTHS).plusSeconds(0);
+
+					ZonedDateTime zBerlin = nextMonthSameDateTime.atZone(zoneId);
+					installment.setDate(zBerlin);
 					final int k = t - 1;
 					final double initPrincipal = Double.parseDouble(
 							new DecimalFormat("##.##").format(installments.get(k).getRemainingOutstandingPrincipal()));

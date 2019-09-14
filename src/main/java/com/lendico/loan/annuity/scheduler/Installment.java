@@ -1,11 +1,12 @@
 package com.lendico.loan.annuity.scheduler;
 
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 public class Installment {
 
 	private double borrowerPaymentAmount;
-	private LocalDateTime date;
+	private ZonedDateTime date;
 	private double initialOutstandingPrincipal;
 	private double interest;
 	private double principal;
@@ -23,12 +24,12 @@ public class Installment {
 		this.borrowerPaymentAmount = borrowerPaymentAmount;
 	}
 
-	public LocalDateTime getDate() {
+	public ZonedDateTime getDate() {
 		return date;
 	}
 
-	public void setDate(LocalDateTime dateTime) {
-		this.date = dateTime;
+	public void setDate(ZonedDateTime zBerlin) {
+		this.date = zBerlin;
 	}
 
 	public double getInitialOutstandingPrincipal() {
