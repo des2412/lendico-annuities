@@ -1,6 +1,6 @@
 # lendico-annuities (LA)
 
-Services: AnnuityPaymentScheduler, AnnuityCalculator, Web*, Security*
+Services: AnnuityPaymentScheduler, AnnuityCalculator, Web\*, Security\*
 
 *putative
 

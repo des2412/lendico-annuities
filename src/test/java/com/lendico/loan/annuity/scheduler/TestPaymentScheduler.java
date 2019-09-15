@@ -21,8 +21,13 @@ public class TestPaymentScheduler {
 	public void testCreateSchedule() {
 
 		String text = "2018-01-01T00:00:00Z";
-		List<Installment> res = schd.createSchedule(text, 24, 5.00, 5000);
+		List<Installment> res = schd.createSchedule(text, 24, 5.00, 5000.00);
 		assertEquals(24, res.size());
+	}
+	
+	@Test(expected=NullPointerException.class)
+	public void testCreateScheduleNullStart() {
+		schd.createSchedule(null, 24, 5.00, 5000.00).size();
 	}
 
 }

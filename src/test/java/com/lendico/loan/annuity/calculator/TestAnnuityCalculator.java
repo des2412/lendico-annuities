@@ -10,24 +10,22 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class TestCalculator {
+public class TestAnnuityCalculator {
 
 	@Autowired
 	private AnnuityCalculator calcService;
 
 	@Test
-	public void test() {
+	public void test_getAmountForPeriod() {
 
-		Double d = calcService.getAmountForPeriod(0.05 / 12, 5000.00, 24);
+		final Double d = calcService.getAmountForPeriod(0.05 / 12, 5000.00, 24);
 		assertEquals(Double.valueOf(219.36), d);
 	}
 
 	@Test
-	public void testInterestCalc() {
-		double ann = calcService.getAmountForPeriod(0.05 / 12, 5000.00, 24);
-		double principal = 5000;
+	public void test_interestForPeriod() {
 
-		Double d = calcService.interestForPeriod(0.05, 30, principal);
+		final Double d = calcService.interestForPeriod(0.05, 30, 5000.00);
 		assertEquals(Double.valueOf(20.83), d);
 
 	}
