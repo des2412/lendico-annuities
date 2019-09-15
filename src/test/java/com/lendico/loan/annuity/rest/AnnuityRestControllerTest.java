@@ -41,7 +41,8 @@ public class AnnuityRestControllerTest {
 	private static final MediaType JSON_UTF8 = new MediaType(MediaType.APPLICATION_JSON_UTF8, Charset.forName("UTF8"));
 
 	/*
-	 * Expect HTTP 200. { \"loanAmount\": 2000.00, "nominalRate": "5.0", "duration": 24, "startDate":
+	 * Expect HTTP 200. {
+	 * \"loanAmount\": 2000.00, "nominalRate": "5.0", "duration": 24, "startDate":
 	 * "2018-01-01T00:00:01Z" }
 	 */
 	@Test
