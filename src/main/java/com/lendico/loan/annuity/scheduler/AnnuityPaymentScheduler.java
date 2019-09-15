@@ -1,13 +1,12 @@
 package com.lendico.loan.annuity.scheduler;
 
+import static java.time.temporal.ChronoUnit.MONTHS;
 import static java.util.stream.IntStream.rangeClosed;
 
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -18,11 +17,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.lendico.loan.annuity.calculator.CalculatorService;
+import com.lendico.loan.annuity.calculator.AnnuityCalculator;
 
 @Service
-public class PaymentScheduler {
-	private static final Logger logger = LoggerFactory.getLogger(PaymentScheduler.class);
+public class AnnuityPaymentScheduler {
+	private static final Logger logger = LoggerFactory.getLogger(AnnuityPaymentScheduler.class);
 
 	@Value(value = "${year.months}")
 	private int yrMonths;
@@ -34,7 +33,7 @@ public class PaymentScheduler {
 	private String timeZone;
 
 	@Autowired
-	private CalculatorService calcService;
+	private AnnuityCalculator calcService;
 
 	public List<Installment> createSchedule(final String start, final int duration, final double rate,
 			final double amount) {
@@ -60,8 +59,7 @@ public class PaymentScheduler {
 
 				Double principal = null;
 				if (installments.isEmpty()) {
-					ZonedDateTime zBerlin = dateTime.atZone(zoneId);
-					installment.setDate(zBerlin);
+					installment.setDate(dateTime.atZone(zoneId));
 					final double interest = calcService.interestForPeriod(ratePercent, monthDays, amount);
 					principal = annuity - interest;
 					installment.setBorrowerPaymentAmount(
@@ -73,11 +71,10 @@ public class PaymentScheduler {
 					installment.setRemainingOutstandingPrincipal(amount - principal);
 
 				} else {
-					LocalDateTime nextMonthSameDateTime = dateTime.plus(t, ChronoUnit.MONTHS).plusSeconds(0);
-
-					ZonedDateTime zBerlin = nextMonthSameDateTime.atZone(zoneId);
-					installment.setDate(zBerlin);
-					final int k = t - 1;
+					LocalDateTime nextMonthSameDateTime = dateTime.plus(t, MONTHS).plusSeconds(0);
+					installment.setDate(nextMonthSameDateTime.atZone(zoneId));
+					final int k = --t;
+					// reference previous installment.
 					final double initPrincipal = Double.parseDouble(
 							new DecimalFormat("##.##").format(installments.get(k).getRemainingOutstandingPrincipal()));
 
@@ -89,13 +86,13 @@ public class PaymentScheduler {
 					principal = Double.parseDouble(new DecimalFormat("##.##").format(annuity - interest));
 					installment.setPrincipal(principal);
 
-					double remainingPrinicipal = Double
+					final double remainingPrinicipal = Double
 							.parseDouble(new DecimalFormat("##.##").format(initPrincipal - principal));
 
 					if (principal > initPrincipal)
 						installment.setPrincipal(initPrincipal);
 
-					if (remainingPrinicipal < 0.0) {
+					if (remainingPrinicipal < 0) {
 						installment.setRemainingOutstandingPrincipal(0.0);
 						installment.setBorrowerPaymentAmount(Double.parseDouble(
 								new DecimalFormat("##.##").format(principal + interest + remainingPrinicipal)));

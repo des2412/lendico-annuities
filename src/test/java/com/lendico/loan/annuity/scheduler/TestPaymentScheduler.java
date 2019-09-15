@@ -15,7 +15,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 public class TestPaymentScheduler {
 
 	@Autowired
-	private PaymentScheduler schd;
+	private AnnuityPaymentScheduler schd;
 
 	@Test
 	public void testCreateSchedule() {

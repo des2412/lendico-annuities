@@ -13,7 +13,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 public class TestCalculator {
 
 	@Autowired
-	private CalculatorService calcService;
+	private AnnuityCalculator calcService;
 
 	@Test
 	public void test() {
