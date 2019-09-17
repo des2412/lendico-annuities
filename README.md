@@ -20,7 +20,7 @@ Specific security profile distinct to that of other MS'.
 
 # Installation
 
-LA source code may be using a obtained by a GIT client
+LA source code may be obtained using a GIT client
 
 i.e, git clone https://github.com/des2412/lendico-annuities.git
 

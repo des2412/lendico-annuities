@@ -51,7 +51,12 @@ public class AnnuityPaymentScheduler {
 
 		final double ratePercent = rate / 100;
 		final double annuity = calcService.getAmountForPeriod(ratePercent / yrMonths, amount, duration);
+
 		final List<Installment> installments = new ArrayList<Installment>();
+		if (Double.isInfinite(annuity)) {
+			logger.error("Divide by zero detected");
+			return installments;
+		}
 
 		final DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;
 		final LocalDateTime dateTime = LocalDateTime.parse(start, formatter);

@@ -24,8 +24,8 @@ public class TestPaymentScheduler {
 		List<Installment> res = schd.createSchedule(text, 24, 5.00, 5000.00);
 		assertEquals(24, res.size());
 	}
-	
-	@Test(expected=NullPointerException.class)
+
+	@Test(expected = NullPointerException.class)
 	public void testCreateScheduleNullStart() {
 		schd.createSchedule(null, 24, 5.00, 5000.00).size();
 	}

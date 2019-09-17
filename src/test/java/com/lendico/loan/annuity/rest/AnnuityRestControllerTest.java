@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -12,7 +13,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.nio.charset.Charset;
 
+import javax.validation.Validation;
+import javax.validation.Validator;
+
 import org.hamcrest.core.Is;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +29,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.lendico.loan.annuity.calculator.AnnuityCalculator;
 import com.lendico.loan.annuity.scheduler.AnnuityPaymentScheduler;
 
 @RunWith(SpringRunner.class)
@@ -39,6 +45,29 @@ public class AnnuityRestControllerTest {
 	private AnnuityPaymentScheduler annuityScheduler;
 
 	private static final MediaType JSON_UTF8 = new MediaType(MediaType.APPLICATION_JSON_UTF8, Charset.forName("UTF8"));
+
+	@MockBean
+	private AnnuityCalculator annuityCalculator;
+
+	@Autowired
+	private Validator validator;
+
+	@Before
+	public void setupValidatorInstance() {
+		Validation.buildDefaultValidatorFactory().getValidator();
+	}
+
+	@Test
+	public void div_by_zero_500() throws Exception {
+		when(annuityCalculator.getAmountForPeriod(anyDouble(), anyDouble(), anyInt()))
+				.thenReturn(Double.POSITIVE_INFINITY);
+
+		String annuityRequest = "{\"loanAmount\": 2000.00, \"nominalRate\": 5.0, \"duration\": 24, \"startDate\": \"2018-01-01T00:00:01Z\"}";
+
+		mockMvc.perform(post("/generate-plan").content(annuityRequest).contentType(JSON_UTF8))
+				.andExpect(status().is5xxServerError());
+
+	}
 
 	/*
 	 * Expect HTTP 200. {

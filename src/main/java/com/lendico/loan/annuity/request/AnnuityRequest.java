@@ -1,5 +1,6 @@
 package com.lendico.loan.annuity.request;
 
+import javax.validation.constraints.DecimalMax;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -7,13 +8,13 @@ import javax.validation.constraints.NotNull;
 
 public class AnnuityRequest {
 
-	@NotNull(message = "Please provide a duration")
 	@Min(6)
 	@Max(120)
 	private int duration;
-	@NotNull(message = "Please provide a rate")
+	@DecimalMax("12.00")
+	@DecimalMin("2.00")
 	private double nominalRate;
-	@NotNull(message = "Please provide an amount")
+	@DecimalMax("100000.00")
 	@DecimalMin("1000.00")
 	private double loanAmount;
 	@NotNull(message = "Please provide a start date")
