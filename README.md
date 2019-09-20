@@ -9,6 +9,11 @@ Services: AnnuityPaymentScheduler, AnnuityCalculator, Web\*, Security\*
 Calculate the repayment schedule for a loan.
 [see] (https://financeformulas.net/Annuity_Payment_Formula.html)
 
+# Current Architecture
+
+Amenable to Microservice conversion as services are independent there are dependencies, ie, Spring IoC constructor injection.
+
+
 # Benefits of Microservice Architecture 
 
 A service deployed as a Microservice (MS) exhibits key benefits-;
