@@ -14,11 +14,13 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 public class ExceptionResponse {
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm:ss")
 	private LocalDateTime timestamp;
+	private String message;
 	private int status;
 	private String error;
 
-	public ExceptionResponse(LocalDateTime timestamp, int status, String error) {
+	public ExceptionResponse(LocalDateTime timestamp, String message, int status, String error) {
 		this.timestamp = timestamp;
+		this.message = message;
 		this.status = status;
 		this.error = error;
 	}
@@ -28,6 +30,13 @@ public class ExceptionResponse {
 	 */
 	public final LocalDateTime getTimestamp() {
 		return timestamp;
+	}
+
+	/**
+	 * @return the message
+	 */
+	public final String getMessage() {
+		return message;
 	}
 
 	/**

@@ -29,8 +29,8 @@ public class AnnuityResponseExceptionHandler extends ResponseEntityExceptionHand
 	@ResponseStatus(INTERNAL_SERVER_ERROR)
 	@ExceptionHandler({ DivideByZeroException.class })
 	public final ResponseEntity<Object> handleDivideByZeroException(DivideByZeroException exc, WebRequest req) {
-		ExceptionResponse excResp = new ExceptionResponse(LocalDateTime.now(), INTERNAL_SERVER_ERROR.value(),
-				req.getDescription(false));
+		ExceptionResponse excResp = new ExceptionResponse(LocalDateTime.now(), "Divide by zero exception caught.",
+				INTERNAL_SERVER_ERROR.value(), req.getDescription(false));
 		return new ResponseEntity<>(excResp, INTERNAL_SERVER_ERROR);
 
 	}

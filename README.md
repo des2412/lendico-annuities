@@ -4,6 +4,11 @@ Services: AnnuityPaymentScheduler, AnnuityCalculator, Web\*, Security\*
 
 *putative
 
+# Business Objectives
+
+Calculate the repayment schedule for a loan.
+[see] (https://financeformulas.net/Annuity_Payment_Formula.html)
+
 # Benefits of Microservice Architecture 
 
 A service deployed as a Microservice (MS) exhibits key benefits-;

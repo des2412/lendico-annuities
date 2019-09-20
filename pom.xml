@@ -13,32 +13,18 @@
 	<artifactId>annuity</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>annuity</name>
-	<description>Demo project for Spring Boot</description>
+	<description>Spring Boot Rest-type application</description>
 
 	<properties>
 		<java.version>1.8</java.version>
 		<downloadSources>true</downloadSources>
-		<downloadJavadocs>true</downloadJavadocs>
+		<downloadJavadocs>false</downloadJavadocs>
 	</properties>
 
 	<dependencies>
-
-		<!-- Rest Assured Dependencies -->
-		<dependency>
-			<groupId>io.rest-assured</groupId>
-			<artifactId>rest-assured</artifactId>
-			<scope>test</scope>
-		</dependency>
-
 		<dependency>
 			<groupId>com.fasterxml.jackson.datatype</groupId>
 			<artifactId>jackson-datatype-jsr310</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-			<scope>provided</scope>
 		</dependency>
 
 		<dependency>

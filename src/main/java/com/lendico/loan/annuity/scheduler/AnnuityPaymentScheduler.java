@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.lendico.loan.annuity.calculator.AnnuityCalculator;
+import com.lendico.loan.annuity.exception.DivideByZeroException;
 
 @Service
 public class AnnuityPaymentScheduler {
@@ -36,26 +37,31 @@ public class AnnuityPaymentScheduler {
 	@Value(value = "${decimal.format}")
 	private String decFormat;
 
+	private AnnuityCalculator annuityCalculator;
+
 	@Autowired
-	private AnnuityCalculator calcService;
+	public AnnuityPaymentScheduler(AnnuityCalculator calcService) {
+		this.annuityCalculator = calcService;
+	}
 
 	public List<Installment> createSchedule(final String start, final Integer duration, final Double rate,
 			final Double amount) {
 		// perform basic null checks.
-		requireNonNull(start, "start date is required");
-		requireNonNull(duration, "duration is required");
+		requireNonNull(start, "Start date is required");
+		requireNonNull(duration, "Duration is required");
 		requireNonNull(rate, "Rate is required");
 		requireNonNull(amount, "Amount is required");
 
 		logger.info("Start Date {}, Duration {}, Nominal Rate {}, Loan Amount {}", start, duration, rate, amount);
 
 		final double ratePercent = rate / 100;
-		final double annuity = calcService.getAmountForPeriod(ratePercent / yrMonths, amount, duration);
+		final double annuity = annuityCalculator.getAmountForPeriod(ratePercent / yrMonths, amount, duration);
 
 		final List<Installment> installments = new ArrayList<Installment>();
+		// can only happen at runtime due to unpredicatable reason.
 		if (Double.isInfinite(annuity)) {
 			logger.error("Divide by zero detected");
-			return installments;
+			throw new DivideByZeroException();
 		}
 
 		final DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;
@@ -74,7 +80,7 @@ public class AnnuityPaymentScheduler {
 				Double principal = null;
 				if (installments.isEmpty()) {
 					installment.setDate(dateTime.atZone(zoneId));
-					final double interest = calcService.interestForPeriod(ratePercent, monthDays, amount);
+					final double interest = annuityCalculator.interestForPeriod(ratePercent, monthDays, amount);
 					principal = annuity - interest;
 					installment.setBorrowerPaymentAmount(
 							Double.parseDouble(new DecimalFormat(decFormat).format(principal + interest)));
@@ -93,7 +99,7 @@ public class AnnuityPaymentScheduler {
 
 					installment.setInitialOutstandingPrincipal(initPrincipal);
 
-					final double interest = calcService.interestForPeriod(ratePercent, monthDays, initPrincipal);
+					final double interest = annuityCalculator.interestForPeriod(ratePercent, monthDays, initPrincipal);
 					installment.setInterest(interest);
 
 					principal = Double.parseDouble(new DecimalFormat(decFormat).format(annuity - interest));
@@ -122,4 +128,5 @@ public class AnnuityPaymentScheduler {
 		});
 		return installments;
 	}
+
 }

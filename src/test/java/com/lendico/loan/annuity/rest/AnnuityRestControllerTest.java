@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -23,8 +24,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-
-import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -45,31 +44,14 @@ public class AnnuityRestControllerTest {
 	@MockBean
 	private AnnuityPaymentScheduler annuityScheduler;
 
-	private static final MediaType JSON_UTF8 = new MediaType(APPLICATION_JSON_UTF8, Charset.forName("UTF8"));
-
 	@MockBean
 	private AnnuityCalculator annuityCalculator;
+
+	private static final MediaType JSON_UTF8 = new MediaType(APPLICATION_JSON_UTF8, Charset.forName("UTF8"));
 
 	private String VALID_ANNUITY_REQUEST = "{\"loanAmount\": 2000.00, \"nominalRate\": 5.0, \"duration\": 24, \"startDate\": \"2018-01-01T00:00:01Z\"}";
 
 	private String INVALID_ANNUITY_REQUEST = "{\"nominalRate\": 5.0, \"duration\": 24, \"startDate\": \"2018-01-01T00:00:01Z\"}";
-
-	@Test
-	public void div_by_zero_500() throws Exception {
-		when(annuityCalculator.getAmountForPeriod(anyDouble(), anyDouble(), anyInt()))
-				.thenReturn(Double.POSITIVE_INFINITY);
-
-		when(annuityScheduler.createSchedule(anyString(), anyInt(), anyDouble(), anyDouble()))
-				.thenReturn(new ArrayList<Installment>());
-
-		mockMvc.perform(post("/generate-plan").content(VALID_ANNUITY_REQUEST).contentType(JSON_UTF8))
-				.andExpect(status().is5xxServerError()).andExpect(content().contentType(JSON_UTF8));
-
-		verify(annuityScheduler).createSchedule(anyString(), anyInt(), anyDouble(), anyDouble());
-
-		//verify(annuityCalculator).getAmountForPeriod(anyDouble(), anyDouble(), anyInt());
-
-	}
 
 	/*
 	 * Expect HTTP 200. {
@@ -77,7 +59,7 @@ public class AnnuityRestControllerTest {
 	 * "2018-01-01T00:00:01Z" }
 	 */
 	@Test
-	public void ok_loanamt_200() throws Exception {
+	public void valid_request_without_divide_by_zero_returns_http200() throws Exception {
 
 		List<Installment> installments = new ArrayList<>();
 		Installment installment = new Installment();
@@ -96,7 +78,7 @@ public class AnnuityRestControllerTest {
 	 * "2018-01-01T00:00:01Z" }
 	 */
 	@Test
-	public void null_loanamt_400() throws Exception {
+	public void invalid_request_returns_http400() throws Exception {
 
 		mockMvc.perform(post("/generate-plan").content(INVALID_ANNUITY_REQUEST).contentType(JSON_UTF8))
 				.andExpect(status().isBadRequest())
