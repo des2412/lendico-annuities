@@ -11,8 +11,8 @@ Calculate the repayment schedule for a loan.
 
 # Current Architecture
 
-Amenable to Microservice conversion as services are independent there are dependencies, ie, Spring IoC constructor injection.
-
+Amenable to Microservice conversion as services are independent there are features that must be addressed, 
+ie, Spring IoC constructor injection of payment service with calculator service.
 
 # Benefits of Microservice Architecture 
 
