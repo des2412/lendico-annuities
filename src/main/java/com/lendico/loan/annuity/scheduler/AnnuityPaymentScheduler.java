@@ -78,9 +78,10 @@ public class AnnuityPaymentScheduler {
 				final Installment installment = new Installment();
 
 				Double principal = null;
-				if (installments.isEmpty()) {
+				Double interest = null;
+				if (t == 0) {
 					installment.setDate(dateTime.atZone(zoneId));
-					final double interest = annuityCalculator.interestForPeriod(ratePercent, monthDays, amount);
+					interest = annuityCalculator.interestForPeriod(ratePercent, monthDays, amount);
 					principal = annuity - interest;
 					installment.setBorrowerPaymentAmount(
 							Double.parseDouble(new DecimalFormat(decFormat).format(principal + interest)));
@@ -91,25 +92,21 @@ public class AnnuityPaymentScheduler {
 					installment.setRemainingOutstandingPrincipal(amount - principal);
 
 				} else {
-					LocalDateTime nextMonthSameDateTime = dateTime.plus(t, MONTHS).plusSeconds(0);
-					installment.setDate(nextMonthSameDateTime.atZone(zoneId));
+					installment.setDate(dateTime.plus(t, MONTHS).plusSeconds(0).atZone(zoneId));
 					// reference previous installment.
-					final double initPrincipal = Double.parseDouble(new DecimalFormat(decFormat)
-							.format(installments.get(--t).getRemainingOutstandingPrincipal()));
-
+					final double initPrincipal = installments.get(--t).getRemainingOutstandingPrincipal();
 					installment.setInitialOutstandingPrincipal(initPrincipal);
-
-					final double interest = annuityCalculator.interestForPeriod(ratePercent, monthDays, initPrincipal);
-					installment.setInterest(interest);
-
+					interest = annuityCalculator.interestForPeriod(ratePercent, monthDays, initPrincipal);
+					installment.setInterest(Double.parseDouble(new DecimalFormat(decFormat).format(interest)));
 					principal = Double.parseDouble(new DecimalFormat(decFormat).format(annuity - interest));
-					installment.setPrincipal(principal);
-
-					final double remainingPrinicipal = Double
-							.parseDouble(new DecimalFormat(decFormat).format(initPrincipal - principal));
 
 					if (principal > initPrincipal)
 						installment.setPrincipal(initPrincipal);
+					else
+						installment.setPrincipal(principal);
+
+					final double remainingPrinicipal = Double
+							.parseDouble(new DecimalFormat(decFormat).format(initPrincipal - principal));
 
 					if (remainingPrinicipal < 0) {
 						installment.setRemainingOutstandingPrincipal(0.0);
