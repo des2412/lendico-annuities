@@ -22,18 +22,18 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.lendico.loan.annuity.exception.DivideByZeroException;
+import com.lendico.loan.annuity.model.Installment;
 import com.lendico.loan.annuity.request.AnnuityRequest;
-import com.lendico.loan.annuity.scheduler.AnnuityPaymentScheduler;
-import com.lendico.loan.annuity.scheduler.Installment;
+import com.lendico.loan.annuity.scheduler.AnnuityScheduler;
 
 @RestController
 public class AnnuityRestController {
 	private static final Logger logger = LoggerFactory.getLogger(AnnuityRestController.class);
 
-	private AnnuityPaymentScheduler annuityScheduler;
+	private AnnuityScheduler annuityScheduler;
 
 	@Autowired
-	public AnnuityRestController(AnnuityPaymentScheduler annuityScheduler) {
+	public AnnuityRestController(AnnuityScheduler annuityScheduler) {
 
 		this.annuityScheduler = annuityScheduler;
 	}

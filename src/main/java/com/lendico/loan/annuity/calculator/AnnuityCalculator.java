@@ -21,7 +21,7 @@ public class AnnuityCalculator {
 	/**
 	 * 
 	 * @param rate     the annuity interest rate.
-	 * @param amount   the annuity amount.
+	 * @param amount   the loan amount.
 	 * @param duration the number of months.
 	 * @return the amount of annuity.
 	 */
@@ -37,7 +37,7 @@ public class AnnuityCalculator {
 
 	/**
 	 * 
-	 * @param rate      the annuity interest rate.
+	 * @param rate      the annuity nominal rate.
 	 * @param mthDays   the number of days in month.
 	 * @param principal the principal amount.
 	 * @return the interest amount.

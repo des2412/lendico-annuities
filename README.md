@@ -18,9 +18,9 @@ ie, Spring IoC constructor injection of payment service with calculator service.
 
 A service deployed as a Microservice (MS) exhibits key benefits-;
 
-An independent entity that can be managed independently by a particular team.
+Easily deployed to Cloud infrastructure
 
-Easily deployed to Cloud infrastructure where services may be discovered (e.g., Eureka).
+May be discovered (e.g., Eureka).
 
 Scale horizontally, per configuration, in response to demand in a Cloud environment.
 

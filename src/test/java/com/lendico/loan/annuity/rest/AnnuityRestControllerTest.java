@@ -29,8 +29,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.lendico.loan.annuity.calculator.AnnuityCalculator;
-import com.lendico.loan.annuity.scheduler.AnnuityPaymentScheduler;
-import com.lendico.loan.annuity.scheduler.Installment;
+import com.lendico.loan.annuity.model.Installment;
+import com.lendico.loan.annuity.scheduler.AnnuityScheduler;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -42,7 +42,7 @@ public class AnnuityRestControllerTest {
 	private MockMvc mockMvc;
 
 	@MockBean
-	private AnnuityPaymentScheduler annuityScheduler;
+	private AnnuityScheduler annuityScheduler;
 
 	@MockBean
 	private AnnuityCalculator annuityCalculator;

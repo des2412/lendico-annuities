@@ -1,4 +1,4 @@
-package com.lendico.loan.annuity.scheduler;
+package com.lendico.loan.annuity.model;
 
 import java.time.ZonedDateTime;
 
