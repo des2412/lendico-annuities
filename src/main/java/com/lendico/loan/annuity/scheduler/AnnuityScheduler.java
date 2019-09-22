@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.lendico.loan.annuity.calculator.AnnuityCalculator;
 import com.lendico.loan.annuity.exception.DivideByZeroException;
 import com.lendico.loan.annuity.model.Installment;
 
@@ -28,17 +29,20 @@ public class AnnuityScheduler {
 	@Value(value = "${year.months}")
 	private int yrMonths;
 
+	@Value(value = "${month.days}")
+	private int monthDays;
+
 	@Value(value = "${decimal.format}")
 	private String decFormat;
 
 	@Value(value = "${time.zone}")
 	private String timeZone;
 
-	private AnnuitySchedulerDelegate annuitySchedulerDelegate;
+	private AnnuityCalculator annuityCalculator;
 
 	@Autowired
-	public AnnuityScheduler(AnnuitySchedulerDelegate annuityPaymentSchedulerDelegate) {
-		this.annuitySchedulerDelegate = annuityPaymentSchedulerDelegate;
+	public AnnuityScheduler(AnnuityCalculator annuityCalculator) {
+		this.annuityCalculator = annuityCalculator;
 	}
 
 	/**
@@ -61,7 +65,7 @@ public class AnnuityScheduler {
 
 		final Double ratePercent = rate / 100;
 
-		final double annuity = annuitySchedulerDelegate.getAnnuityAmount(ratePercent / yrMonths, amount, duration);
+		final double annuity = annuityCalculator.calculateAnnuityAmount(ratePercent / yrMonths, amount, duration);
 
 		// can only happen at runtime due to unpredictable reason.
 		if (Double.isInfinite(annuity)) {
@@ -91,13 +95,49 @@ public class AnnuityScheduler {
 							installments.get(installments.size() - 1).getRemainingOutstandingPrincipal());
 
 				}
-				installments.add(t, annuitySchedulerDelegate.createInstallment(installment, ratePercent, annuity));
+				installments.add(t, createInstallment(installment, ratePercent, annuity));
 
 			}
 
 		});
 
 		return installments;
+	}
+
+	/**
+	 * 
+	 * @param installment
+	 * @param ratePercent
+	 * @param annuity
+	 * @return
+	 */
+	Installment createInstallment(Installment installment, final double ratePercent, final double annuity) {
+		final double initPrincipal = installment.getInitialOutstandingPrincipal();
+		final double interest = annuityCalculator.calculateAnnuityMonthlyInterest(ratePercent, monthDays,
+				initPrincipal);
+		installment.setInterest(Double.parseDouble(new DecimalFormat(decFormat).format(interest)));
+		final double principal = Double.parseDouble(new DecimalFormat(decFormat).format(annuity - interest));
+
+		if (principal > initPrincipal)
+			installment.setPrincipal(initPrincipal);
+		else
+			installment.setPrincipal(principal);
+
+		final double remainingPrinicipal = Double
+				.parseDouble(new DecimalFormat(decFormat).format(initPrincipal - principal));
+
+		if (remainingPrinicipal < 0) {
+			installment.setRemainingOutstandingPrincipal(0.0);
+			installment.setBorrowerPaymentAmount(Double
+					.parseDouble(new DecimalFormat(decFormat).format(principal + interest + remainingPrinicipal)));
+		} else {
+			installment.setBorrowerPaymentAmount(
+					Double.parseDouble(new DecimalFormat(decFormat).format(principal + interest)));
+			installment.setRemainingOutstandingPrincipal(remainingPrinicipal);
+		}
+
+		return installment;
+
 	}
 
 }
