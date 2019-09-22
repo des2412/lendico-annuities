@@ -2,31 +2,43 @@ package com.lendico.loan.annuity.calculator;
 
 import static org.junit.Assert.assertEquals;
 
+import java.text.DecimalFormat;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import com.lendico.loan.annuity.exception.DivideByZeroException;
+
 @RunWith(SpringRunner.class)
-@SpringBootTest
+@ContextConfiguration(classes = AnnuityCalculator.class)
+@TestPropertySource(locations = "/test.properties")
 public class TestAnnuityCalculator {
 
 	@Autowired
-	private AnnuityCalculator calcService;
+	private AnnuityCalculator annuityCalculator;
 
 	@Test
-	public void test_getAmountForPeriod() {
+	public void test_calculate_annuity_amount() {
 
-		final Double d = calcService.calculateAnnuityAmount(0.05 / 12, 5000.00, 24);
-		assertEquals(Double.valueOf(219.36), d);
+		final Double d = annuityCalculator.calculateAnnuityAmount(0.05 / 12, 5000.00, 24);
+		assertEquals(219.36, Double.parseDouble(new DecimalFormat("##.##").format(d)), 0);
+	}
+
+	@Test(expected = DivideByZeroException.class)
+	public void test_zero_duration() {
+
+		annuityCalculator.calculateAnnuityAmount(5.00, 5000.00, 0);
 	}
 
 	@Test
-	public void test_interestForPeriod() {
+	public void test_calculate_annuity_monthly_interest() {
 
-		final Double d = calcService.calculateAnnuityInterestForMonth(0.05, 30, 5000.00);
-		assertEquals(Double.valueOf(20.83), d);
+		final Double d = annuityCalculator.calculateAnnuityMonthlyInterest(0.05, 30, 5000.00);
+		assertEquals(20.83, Double.parseDouble(new DecimalFormat("##.##").format(d)), 0);
 
 	}
 

@@ -5,11 +5,11 @@ import static java.lang.Math.pow;
 import java.text.DecimalFormat;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import com.lendico.loan.annuity.exception.DivideByZeroException;
 
-@Service
+@Component
 public class AnnuityCalculator {
 
 	@Value(value = "${year.days}")
@@ -28,9 +28,9 @@ public class AnnuityCalculator {
 	public double calculateAnnuityAmount(double rate, double amount, int duration) {
 
 		final double denom = pow(1 + rate, -duration);
-		if (denom == 0) {
+		if (denom == 0 || 1 - denom == 0)
 			throw new DivideByZeroException("Divide by zero detected.");
-		}
+
 		return Double.parseDouble(new DecimalFormat(decFormat).format((rate * amount) / (1 - (denom))));
 
 	}
@@ -42,7 +42,7 @@ public class AnnuityCalculator {
 	 * @param principal the principal amount.
 	 * @return the interest amount.
 	 */
-	public double calculateAnnuityInterestForMonth(double rate, int mthDays, double principal) {
+	public double calculateAnnuityMonthlyInterest(double rate, int mthDays, double principal) {
 
 		return Double.parseDouble(new DecimalFormat(decFormat).format((rate * mthDays * principal) / yrDays));
 

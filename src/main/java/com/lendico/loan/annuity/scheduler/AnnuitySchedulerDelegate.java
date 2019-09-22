@@ -37,7 +37,7 @@ public class AnnuitySchedulerDelegate {
 	 */
 	Installment createInstallment(Installment installment, final double ratePercent, final double annuity) {
 		final double initPrincipal = installment.getInitialOutstandingPrincipal();
-		final double interest = annuityCalculator.calculateAnnuityInterestForMonth(ratePercent, monthDays,
+		final double interest = annuityCalculator.calculateAnnuityMonthlyInterest(ratePercent, monthDays,
 				initPrincipal);
 		installment.setInterest(Double.parseDouble(new DecimalFormat(decFormat).format(interest)));
 		final double principal = Double.parseDouble(new DecimalFormat(decFormat).format(annuity - interest));
