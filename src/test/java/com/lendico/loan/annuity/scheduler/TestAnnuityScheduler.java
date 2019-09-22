@@ -14,7 +14,7 @@ import com.lendico.loan.annuity.model.Installment;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class TestPaymentScheduler {
+public class TestAnnuityScheduler {
 
 	@Autowired
 	private AnnuityScheduler schd;
@@ -22,8 +22,8 @@ public class TestPaymentScheduler {
 	@Test
 	public void testCreateSchedule() {
 
-		String text = "2018-01-01T00:00:00Z";
-		List<Installment> res = schd.createSchedule(text, 24, 5.00, 5000.00);
+		String dateTime = "2018-01-01T00:00:00Z";
+		List<Installment> res = schd.createSchedule(dateTime, 24, 5.00, 5000.00);
 		assertEquals(24, res.size());
 	}
 

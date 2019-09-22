@@ -47,12 +47,12 @@ public class AnnuityResponseExceptionHandlerTest {
 
 	@Test
 	public void div_by_zero_returns_http500() throws Exception {
-		when(annuityCalculator.getAmountForPeriod(anyDouble(), anyDouble(), anyInt()))
+		when(annuityCalculator.calculateAnnuityAmount(anyDouble(), anyDouble(), anyInt()))
 				.thenReturn(Double.POSITIVE_INFINITY);
 		mockMvc.perform(post("/generate-plan").content(VALID_ANNUITY_REQUEST).contentType(JSON_UTF8))
 				.andExpect(status().is5xxServerError()).andExpect(content().contentType(JSON_UTF8));
 
-		verify(annuityCalculator).getAmountForPeriod(anyDouble(), anyDouble(), anyInt());
+		verify(annuityCalculator).calculateAnnuityAmount(anyDouble(), anyDouble(), anyInt());
 
 	}
 

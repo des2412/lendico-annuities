@@ -23,9 +23,9 @@ public class AnnuityCalculator {
 	 * @param rate     the annuity interest rate.
 	 * @param amount   the loan amount.
 	 * @param duration the number of months.
-	 * @return the amount of annuity.
+	 * @return the cost (Interest + Principal) of annuity.
 	 */
-	public double getAmountForPeriod(double rate, double amount, int duration) {
+	public double calculateAnnuityAmount(double rate, double amount, int duration) {
 
 		final double denom = pow(1 + rate, -duration);
 		if (denom == 0) {
@@ -38,11 +38,11 @@ public class AnnuityCalculator {
 	/**
 	 * 
 	 * @param rate      the annuity nominal rate.
-	 * @param mthDays   the number of days in month.
+	 * @param mthDays   the number of days in month, i.e., 30.
 	 * @param principal the principal amount.
 	 * @return the interest amount.
 	 */
-	public double interestForPeriod(double rate, int mthDays, double principal) {
+	public double calculateAnnuityInterestForMonth(double rate, int mthDays, double principal) {
 
 		return Double.parseDouble(new DecimalFormat(decFormat).format((rate * mthDays * principal) / yrDays));
 

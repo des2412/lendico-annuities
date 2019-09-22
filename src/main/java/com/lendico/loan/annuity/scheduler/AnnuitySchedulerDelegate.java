@@ -13,7 +13,7 @@ import com.lendico.loan.annuity.calculator.AnnuityCalculator;
 import com.lendico.loan.annuity.model.Installment;
 
 /**
- * @author dg8wi 
+ * @author dg8wi
  *
  */
 @Component
@@ -28,9 +28,17 @@ public class AnnuitySchedulerDelegate {
 	@Value(value = "${decimal.format}")
 	private String decFormat;
 
+	/**
+	 * 
+	 * @param installment
+	 * @param ratePercent
+	 * @param annuity
+	 * @return
+	 */
 	Installment createInstallment(Installment installment, final double ratePercent, final double annuity) {
 		final double initPrincipal = installment.getInitialOutstandingPrincipal();
-		final double interest = annuityCalculator.interestForPeriod(ratePercent, monthDays, initPrincipal);
+		final double interest = annuityCalculator.calculateAnnuityInterestForMonth(ratePercent, monthDays,
+				initPrincipal);
 		installment.setInterest(Double.parseDouble(new DecimalFormat(decFormat).format(interest)));
 		final double principal = Double.parseDouble(new DecimalFormat(decFormat).format(annuity - interest));
 
@@ -58,13 +66,13 @@ public class AnnuitySchedulerDelegate {
 
 	/**
 	 * 
-	 * @param rate the annuity nominal rate.
-	 * @param amount the annuity loan amount.
+	 * @param rate     the annuity nominal rate.
+	 * @param amount   the annuity loan amount.
 	 * @param duration the annuity duration.
 	 * @return the annuity amount.
 	 */
 	public double getAnnuityAmount(Double rate, Double amount, Integer duration) {
-		return annuityCalculator.getAmountForPeriod(rate, amount, duration);
+		return annuityCalculator.calculateAnnuityAmount(rate, amount, duration);
 	}
 
 }

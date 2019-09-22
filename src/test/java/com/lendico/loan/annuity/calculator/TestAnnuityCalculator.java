@@ -18,14 +18,14 @@ public class TestAnnuityCalculator {
 	@Test
 	public void test_getAmountForPeriod() {
 
-		final Double d = calcService.getAmountForPeriod(0.05 / 12, 5000.00, 24);
+		final Double d = calcService.calculateAnnuityAmount(0.05 / 12, 5000.00, 24);
 		assertEquals(Double.valueOf(219.36), d);
 	}
 
 	@Test
 	public void test_interestForPeriod() {
 
-		final Double d = calcService.interestForPeriod(0.05, 30, 5000.00);
+		final Double d = calcService.calculateAnnuityInterestForMonth(0.05, 30, 5000.00);
 		assertEquals(Double.valueOf(20.83), d);
 
 	}

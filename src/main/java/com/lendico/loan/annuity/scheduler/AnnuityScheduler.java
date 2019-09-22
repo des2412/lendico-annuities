@@ -41,7 +41,15 @@ public class AnnuityScheduler {
 		this.annuitySchedulerDelegate = annuityPaymentSchedulerDelegate;
 	}
 
-	public List<Installment> createSchedule(final String start, Integer duration, final Double rate,
+	/**
+	 * 
+	 * @param start    the start date time.
+	 * @param duration the duration.
+	 * @param rate     the interest rate.
+	 * @param amount   the loan amount.
+	 * @return list of Installments.
+	 */
+	public List<Installment> createSchedule(final String start, final Integer duration, final Double rate,
 			final Double amount) {
 		// perform basic null checks.
 		requireNonNull(start, "Start date is required");
@@ -53,8 +61,7 @@ public class AnnuityScheduler {
 
 		final Double ratePercent = rate / 100;
 
-		final double annuity = annuitySchedulerDelegate.getAnnuityAmount(ratePercent / yrMonths, amount,
-				duration);
+		final double annuity = annuitySchedulerDelegate.getAnnuityAmount(ratePercent / yrMonths, amount, duration);
 
 		// can only happen at runtime due to unpredictable reason.
 		if (Double.isInfinite(annuity)) {
@@ -66,7 +73,7 @@ public class AnnuityScheduler {
 		final ZoneId zoneId = ZoneId.of(timeZone);
 		final List<Installment> installments = new ArrayList<Installment>();
 
-		rangeClosed(0, duration - 1).boxed().forEach(new Consumer<Integer>() {
+		rangeClosed(0, duration - 1).boxed().forEachOrdered(new Consumer<Integer>() {
 
 			@Override
 			public void accept(Integer t) {
@@ -76,19 +83,16 @@ public class AnnuityScheduler {
 					installment.setDate(dateTime.atZone(zoneId));
 					installment.setInitialOutstandingPrincipal(
 							Double.parseDouble(new DecimalFormat(decFormat).format(amount)));
-					installments.add(0,
-							annuitySchedulerDelegate.createInstallment(installment, ratePercent, annuity));
 
 				} else {
 					installment.setDate(dateTime.plus(t, MONTHS).atZone(zoneId));
 					// initial principal is previous remaining principal.
-					final int k = t - 1;
-					installment
-							.setInitialOutstandingPrincipal(installments.get(k).getRemainingOutstandingPrincipal());
-					installments
-							.add(annuitySchedulerDelegate.createInstallment(installment, ratePercent, annuity));
+					installment.setInitialOutstandingPrincipal(
+							installments.get(installments.size() - 1).getRemainingOutstandingPrincipal());
 
 				}
+				installments.add(t, annuitySchedulerDelegate.createInstallment(installment, ratePercent, annuity));
+
 			}
 
 		});
