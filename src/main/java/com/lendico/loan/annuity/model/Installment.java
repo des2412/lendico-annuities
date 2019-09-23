@@ -2,9 +2,13 @@ package com.lendico.loan.annuity.model;
 
 import java.time.ZonedDateTime;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.OptBoolean;
+
 public class Installment {
 
 	private double borrowerPaymentAmount;
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssZ", timezone = "Europe/Berlin", lenient = OptBoolean.FALSE)
 	private ZonedDateTime date;
 	private double initialOutstandingPrincipal;
 	private double interest;

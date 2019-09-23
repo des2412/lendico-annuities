@@ -1,16 +1,16 @@
 package com.lendico.loan.annuity.scheduler;
 
 import static java.time.temporal.ChronoUnit.MONTHS;
+import static java.util.Arrays.asList;
 import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.IntStream.rangeClosed;
 
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,43 +75,35 @@ public class AnnuityScheduler {
 
 		final LocalDateTime dateTime = LocalDateTime.parse(start, DateTimeFormatter.ISO_DATE_TIME);
 		final ZoneId zoneId = ZoneId.of(timeZone);
-		final List<Installment> installments = new ArrayList<Installment>();
+		final List<Double> previousRemainingPrincipal = asList(new Double[1]);
 
-		rangeClosed(0, duration - 1).boxed().forEachOrdered(new Consumer<Integer>() {
-
-			@Override
-			public void accept(Integer t) {
-
-				final Installment installment = new Installment();
-				if (t == 0) {// schedule first payment.
-					installment.setDate(dateTime.atZone(zoneId));
-					installment.setInitialOutstandingPrincipal(
-							Double.parseDouble(new DecimalFormat(decFormat).format(amount)));
-
-				} else {
-					installment.setDate(dateTime.plus(t, MONTHS).atZone(zoneId));
-					// initial principal is previous remaining principal.
-					installment.setInitialOutstandingPrincipal(
-							installments.get(installments.size() - 1).getRemainingOutstandingPrincipal());
-
-				}
-				installments.add(t, createInstallment(installment, ratePercent, annuity));
-
+		return rangeClosed(0, duration - 1).mapToObj(n -> {
+			Installment installment = new Installment();
+			if (n == 0) {
+				installment.setDate(dateTime.atZone(zoneId));
+				installment.setInitialOutstandingPrincipal(
+						Double.parseDouble(new DecimalFormat(decFormat).format(amount)));
+			} else {
+				installment.setDate(dateTime.plus(n, MONTHS).plusSeconds(0).atZone(zoneId));
+				installment.setInitialOutstandingPrincipal(previousRemainingPrincipal.get(0));
 			}
+			// update the previous remainder of outstanding principal.
+			previousRemainingPrincipal.set(0,
+					createInstallment(installment, ratePercent, annuity).getRemainingOutstandingPrincipal());
 
-		});
+			return installment;
+		}).collect(toList());
 
-		return installments;
 	}
 
 	/**
 	 * 
-	 * @param installment
-	 * @param ratePercent
-	 * @param annuity
-	 * @return
+	 * @param installment the Installment.
+	 * @param ratePercent the monthly rate as percent.
+	 * @param annuity     the annuity.
+	 * @return the Installment.
 	 */
-	Installment createInstallment(Installment installment, final double ratePercent, final double annuity) {
+	private Installment createInstallment(Installment installment, final double ratePercent, final double annuity) {
 		final double initPrincipal = installment.getInitialOutstandingPrincipal();
 		final double interest = annuityCalculator.calculateAnnuityMonthlyInterest(ratePercent, monthDays,
 				initPrincipal);
