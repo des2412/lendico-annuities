@@ -1,5 +1,7 @@
 package com.lendico.loan.annuity.scheduler;
 
+import static java.time.LocalDateTime.parse;
+import static java.time.format.DateTimeFormatter.ISO_DATE_TIME;
 import static java.time.temporal.ChronoUnit.MONTHS;
 import static java.util.Arrays.asList;
 import static java.util.Objects.requireNonNull;
@@ -9,7 +11,7 @@ import static java.util.stream.IntStream.rangeClosed;
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -67,15 +69,23 @@ public class AnnuityScheduler {
 
 		final double annuity = annuityCalculator.calculateAnnuityAmount(ratePercent / yrMonths, amount, duration);
 
-		// can only happen at runtime due to unpredictable reason.
+		// can occur at runtime due to either unpredictable reason or duration of 0.
 		if (Double.isInfinite(annuity)) {
 			logger.error("Divide by zero detected");
 			throw new DivideByZeroException();
 		}
 
-		final LocalDateTime dateTime = LocalDateTime.parse(start, DateTimeFormatter.ISO_DATE_TIME);
+		// validate start.
+		try {
+			parse(start, ISO_DATE_TIME);
+		} catch (DateTimeParseException e) {
+			logger.error(e.getMessage());
+			throw e;
+		}
+		final LocalDateTime dateTime = LocalDateTime.parse(start, ISO_DATE_TIME);
 		final ZoneId zoneId = ZoneId.of(timeZone);
-		final List<Double> previousRemainingPrincipal = asList(new Double[1]);
+		// holds one and only one value: the previous outstanding principal remaining.
+		List<Double> previousRemainingPrincipal = asList(new Double[1]);
 
 		return rangeClosed(0, duration - 1).mapToObj(n -> {
 			Installment installment = new Installment();
@@ -87,7 +97,7 @@ public class AnnuityScheduler {
 				installment.setDate(dateTime.plus(n, MONTHS).plusSeconds(0).atZone(zoneId));
 				installment.setInitialOutstandingPrincipal(previousRemainingPrincipal.get(0));
 			}
-			// update the previous remainder of outstanding principal.
+
 			previousRemainingPrincipal.set(0,
 					createInstallment(installment, ratePercent, annuity).getRemainingOutstandingPrincipal());
 
