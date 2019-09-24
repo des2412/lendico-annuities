@@ -81,7 +81,7 @@ public class AnnuityScheduler {
 		requireNonNull(rate, "Rate is required");
 		requireNonNull(amount, "Amount is required");
 
-		final Double ratePercent = rate / 100;
+		final double ratePercent = rate / 100;
 
 		final double annuity = annuityCalculator.calculateAnnuityAmount(ratePercent / yrMonths, amount, duration);
 

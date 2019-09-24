@@ -1,11 +1,9 @@
 package com.lendico.loan.annuity.rest;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.OK;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.validation.Valid;
@@ -22,8 +20,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.lendico.loan.annuity.exception.DivideByZeroException;
-import com.lendico.loan.annuity.model.Installment;
 import com.lendico.loan.annuity.request.AnnuityRequest;
 import com.lendico.loan.annuity.scheduler.AnnuityScheduler;
 
@@ -40,20 +36,17 @@ public class AnnuityRestController {
 	}
 
 	@PostMapping(path = "/generate-plan")
-	public ResponseEntity<Object> annuityDisimbursement(@Valid @RequestBody AnnuityRequest annuityRequest) {
+	public ResponseEntity<Object> annuityDisimbursement(@Valid @RequestBody final AnnuityRequest annuityRequest) {
 
-		logger.info("Start Date {}, Duration {}, Nominal Rate {}, Loan Amount {}", annuityRequest.getStartDate(),
-				annuityRequest.getDuration(), annuityRequest.getNominalRate(), annuityRequest.getLoanAmount());
-		List<Installment> installments = null;
-		try {
-			installments = annuityScheduler.createSchedule(annuityRequest.getStartDate(), annuityRequest.getDuration(),
-					annuityRequest.getNominalRate(), annuityRequest.getLoanAmount());
-		} catch (DivideByZeroException e) {
-			return new ResponseEntity<>(e, INTERNAL_SERVER_ERROR);
+		final String startDate = annuityRequest.getStartDate();
+		final int duration = annuityRequest.getDuration();
+		final double nominalRate = annuityRequest.getNominalRate();
+		final double loanAmt = annuityRequest.getLoanAmount();
 
-		}
+		logger.info("Start Date {}, Duration {}, Nominal Rate {}, Loan Amount {}", startDate, duration, nominalRate,
+				loanAmt);
 
-		return new ResponseEntity<>(installments, OK);
+		return new ResponseEntity<>(annuityScheduler.createSchedule(startDate, duration, nominalRate, loanAmt), OK);
 
 	}
 

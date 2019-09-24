@@ -3,7 +3,7 @@
  */
 package com.lendico.loan.annuity.rest;
 
-import java.time.LocalDateTime;
+import static java.time.LocalDateTime.now;
 
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -29,7 +29,7 @@ public class AnnuityResponseExceptionHandler extends ResponseEntityExceptionHand
 	@ResponseStatus(INTERNAL_SERVER_ERROR)
 	@ExceptionHandler({ DivideByZeroException.class })
 	public final ResponseEntity<Object> handleDivideByZeroException(DivideByZeroException exc, WebRequest req) {
-		ExceptionResponse excResp = new ExceptionResponse(LocalDateTime.now(), "Divide by zero exception caught.",
+		ExceptionResponse excResp = new ExceptionResponse(now(), "(Double) Divide by zero exception caught.",
 				INTERNAL_SERVER_ERROR.value(), req.getDescription(false));
 		return new ResponseEntity<>(excResp, INTERNAL_SERVER_ERROR);
 
