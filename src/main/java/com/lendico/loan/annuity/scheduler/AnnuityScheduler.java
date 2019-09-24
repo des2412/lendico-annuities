@@ -1,6 +1,7 @@
 package com.lendico.loan.annuity.scheduler;
 
 import static java.time.LocalDateTime.parse;
+import static java.time.ZoneId.of;
 import static java.time.format.DateTimeFormatter.ISO_DATE_TIME;
 import static java.time.temporal.ChronoUnit.MONTHS;
 import static java.util.Arrays.asList;
@@ -13,6 +14,8 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeParseException;
 import java.util.List;
+
+import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,9 +45,24 @@ public class AnnuityScheduler {
 
 	private AnnuityCalculator annuityCalculator;
 
+	private DecimalFormat decimalFormat;
+
+	private ZoneId zoneId;
+
+	private List<Double> previousRemainingPrincipal;
+
 	@Autowired
 	public AnnuityScheduler(AnnuityCalculator annuityCalculator) {
 		this.annuityCalculator = annuityCalculator;
+
+	}
+
+	@PostConstruct
+	private void postConstruct() {
+		this.decimalFormat = new DecimalFormat(decFormat);
+		this.zoneId = of(timeZone);
+		// holds one and only one value: the previous outstanding principal remaining.
+		this.previousRemainingPrincipal = asList(new Double[1]);
 	}
 
 	/**
@@ -63,8 +81,6 @@ public class AnnuityScheduler {
 		requireNonNull(rate, "Rate is required");
 		requireNonNull(amount, "Amount is required");
 
-		logger.info("Start Date {}, Duration {}, Nominal Rate {}, Loan Amount {}", start, duration, rate, amount);
-
 		final Double ratePercent = rate / 100;
 
 		final double annuity = annuityCalculator.calculateAnnuityAmount(ratePercent / yrMonths, amount, duration);
@@ -82,17 +98,14 @@ public class AnnuityScheduler {
 			logger.error(e.getMessage());
 			throw e;
 		}
-		final LocalDateTime dateTime = LocalDateTime.parse(start, ISO_DATE_TIME);
-		final ZoneId zoneId = ZoneId.of(timeZone);
-		// holds one and only one value: the previous outstanding principal remaining.
-		List<Double> previousRemainingPrincipal = asList(new Double[1]);
+		final LocalDateTime dateTime = parse(start, ISO_DATE_TIME);
 
+		// create Installments from start to duration times on monthly basis.
 		return rangeClosed(0, duration - 1).mapToObj(n -> {
-			Installment installment = new Installment();
+			final Installment installment = new Installment();
 			if (n == 0) {
 				installment.setDate(dateTime.atZone(zoneId));
-				installment.setInitialOutstandingPrincipal(
-						Double.parseDouble(new DecimalFormat(decFormat).format(amount)));
+				installment.setInitialOutstandingPrincipal(Double.parseDouble(decimalFormat.format(amount)));
 			} else {
 				installment.setDate(dateTime.plus(n, MONTHS).plusSeconds(0).atZone(zoneId));
 				installment.setInitialOutstandingPrincipal(previousRemainingPrincipal.get(0));
@@ -117,24 +130,22 @@ public class AnnuityScheduler {
 		final double initPrincipal = installment.getInitialOutstandingPrincipal();
 		final double interest = annuityCalculator.calculateAnnuityMonthlyInterest(ratePercent, monthDays,
 				initPrincipal);
-		installment.setInterest(Double.parseDouble(new DecimalFormat(decFormat).format(interest)));
-		final double principal = Double.parseDouble(new DecimalFormat(decFormat).format(annuity - interest));
+		installment.setInterest(Double.parseDouble(decimalFormat.format(interest)));
+		final double principal = Double.parseDouble(decimalFormat.format(annuity - interest));
 
 		if (principal > initPrincipal)
 			installment.setPrincipal(initPrincipal);
 		else
 			installment.setPrincipal(principal);
 
-		final double remainingPrinicipal = Double
-				.parseDouble(new DecimalFormat(decFormat).format(initPrincipal - principal));
+		final double remainingPrinicipal = Double.parseDouble(decimalFormat.format(initPrincipal - principal));
 
 		if (remainingPrinicipal < 0) {
 			installment.setRemainingOutstandingPrincipal(0.0);
-			installment.setBorrowerPaymentAmount(Double
-					.parseDouble(new DecimalFormat(decFormat).format(principal + interest + remainingPrinicipal)));
-		} else {
 			installment.setBorrowerPaymentAmount(
-					Double.parseDouble(new DecimalFormat(decFormat).format(principal + interest)));
+					Double.parseDouble(decimalFormat.format(principal + interest + remainingPrinicipal)));
+		} else {
+			installment.setBorrowerPaymentAmount(Double.parseDouble(decimalFormat.format(principal + interest)));
 			installment.setRemainingOutstandingPrincipal(remainingPrinicipal);
 		}
 
