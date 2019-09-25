@@ -1,7 +1,7 @@
 package com.lendico.loan.annuity.scheduler;
 
 import static java.time.LocalDateTime.parse;
-import static java.time.ZoneOffset.ofHours;
+import static java.time.ZoneOffset.of;
 import static java.time.format.DateTimeFormatter.ISO_ZONED_DATE_TIME;
 import static java.time.temporal.ChronoUnit.MONTHS;
 import static java.util.Arrays.asList;
@@ -10,7 +10,6 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.IntStream.rangeClosed;
 
 import java.text.DecimalFormat;
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeParseException;
@@ -61,7 +60,7 @@ public class AnnuityScheduler {
 	@PostConstruct
 	private void postConstruct() {
 		this.decimalFormat = new DecimalFormat(decFormat);
-		this.zoneOffset = ofHours(Integer.parseInt(timeZoneOffset));
+		this.zoneOffset = of(timeZoneOffset);
 		// holds one and only one value: the previous outstanding principal remaining.
 		this.previousRemainingPrincipal = asList(new Double[1]);
 	}

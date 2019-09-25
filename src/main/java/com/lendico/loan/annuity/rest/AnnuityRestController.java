@@ -43,8 +43,7 @@ public class AnnuityRestController {
 		final double nominalRate = annuityRequest.getNominalRate();
 		final double loanAmt = annuityRequest.getLoanAmount();
 
-		logger.info("Start Date {}, Duration {}, Nominal Rate {}, Loan Amount {}", startDate, duration, nominalRate,
-				loanAmt);
+		logger.info("{}", annuityRequest.toString());
 
 		return new ResponseEntity<>(annuityScheduler.createSchedule(startDate, duration, nominalRate, loanAmt), OK);
 

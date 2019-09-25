@@ -1,5 +1,10 @@
 package com.lendico.loan.annuity.exception;
 
+/**
+ * thrown if Double divided by zero.
+ * @author dg8wi
+ *
+ */
 public class DivideByZeroException extends RuntimeException {
 
 	/**
