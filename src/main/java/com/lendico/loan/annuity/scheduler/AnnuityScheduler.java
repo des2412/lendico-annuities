@@ -1,8 +1,8 @@
 package com.lendico.loan.annuity.scheduler;
 
 import static java.time.LocalDateTime.parse;
-import static java.time.ZoneId.of;
-import static java.time.format.DateTimeFormatter.ISO_DATE_TIME;
+import static java.time.ZoneOffset.ofHours;
+import static java.time.format.DateTimeFormatter.ISO_ZONED_DATE_TIME;
 import static java.time.temporal.ChronoUnit.MONTHS;
 import static java.util.Arrays.asList;
 import static java.util.Objects.requireNonNull;
@@ -11,7 +11,8 @@ import static java.util.stream.IntStream.rangeClosed;
 
 import java.text.DecimalFormat;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 
@@ -40,14 +41,14 @@ public class AnnuityScheduler {
 	@Value(value = "${decimal.format}")
 	private String decFormat;
 
-	@Value(value = "${time.zone}")
-	private String timeZone;
+	@Value(value = "${time.zone.offset}")
+	private String timeZoneOffset;
 
 	private AnnuityCalculator annuityCalculator;
 
 	private DecimalFormat decimalFormat;
 
-	private ZoneId zoneId;
+	private ZoneOffset zoneOffset;
 
 	private List<Double> previousRemainingPrincipal;
 
@@ -60,7 +61,7 @@ public class AnnuityScheduler {
 	@PostConstruct
 	private void postConstruct() {
 		this.decimalFormat = new DecimalFormat(decFormat);
-		this.zoneId = of(timeZone);
+		this.zoneOffset = ofHours(Integer.parseInt(timeZoneOffset));
 		// holds one and only one value: the previous outstanding principal remaining.
 		this.previousRemainingPrincipal = asList(new Double[1]);
 	}
@@ -93,21 +94,20 @@ public class AnnuityScheduler {
 
 		// validate start.
 		try {
-			parse(start, ISO_DATE_TIME);
+			parse(start, ISO_ZONED_DATE_TIME);
 		} catch (DateTimeParseException e) {
 			logger.error(e.getMessage());
 			throw e;
 		}
-		final LocalDateTime dateTime = parse(start, ISO_DATE_TIME);
-
+		final OffsetDateTime dateTime = parse(start, ISO_ZONED_DATE_TIME).plusSeconds(0).atOffset(zoneOffset);
 		// create Installments from start to duration times on monthly basis.
 		return rangeClosed(0, duration - 1).mapToObj(n -> {
 			final Installment installment = new Installment();
 			if (n == 0) {
-				installment.setDate(dateTime.atZone(zoneId));
+				installment.setDate(dateTime.toZonedDateTime());
 				installment.setInitialOutstandingPrincipal(Double.parseDouble(decimalFormat.format(amount)));
 			} else {
-				installment.setDate(dateTime.plus(n, MONTHS).plusSeconds(0).atZone(zoneId));
+				installment.setDate(dateTime.plus(n, MONTHS).toZonedDateTime());
 				installment.setInitialOutstandingPrincipal(previousRemainingPrincipal.get(0));
 			}
 
